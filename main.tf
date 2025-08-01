@@ -9,51 +9,44 @@ terraform {
       version = "~> 3.7"
     }
   }
-
-  required_version = ">= 1.1.0"
+  required_version = ">= 1.2.0"
 }
 
 provider "azurerm" {
   features {}
 
   subscription_id = var.subscription_id
-}
-variable "subscription_id" {
-  type = string
-  description = "Subscription ID de Azure"
-}
-
-
-resource "random_pet" "name" {
-  length    = 2
-  separator = "-"
+  client_id       = var.client_id
+  client_secret   = var.client_secret
+  tenant_id       = var.tenant_id
 }
 
-resource "azurerm_resource_group" "app_rg" {
-  name     = "rg-${random_pet.name.id}"
-  location = "East US"
+resource "azurerm_resource_group" "rg" {
+  name     = var.resource_group_name
+  location = var.location
 }
 
-resource "azurerm_service_plan" "app_plan" {
-  name                = "plan-${random_pet.name.id}"
-  location            = azurerm_resource_group.app_rg.location
-  resource_group_name = azurerm_resource_group.app_rg.name
+resource "azurerm_app_service_plan" "app_plan" {
+  name                = var.app_service_plan_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
-  sku_name = "F1"      # Plan Free, puedes cambiar a S1, P1v2, etc.
-  os_type  = "Windows" # Sistema operativo Windows
+  sku {
+    tier = "Basic"
+    size = "B1"
+  }
 }
 
 resource "azurerm_windows_web_app" "web_app" {
-  name                = "webapp-${random_pet.name.id}"
-  location            = azurerm_resource_group.app_rg.location
-  resource_group_name = azurerm_resource_group.app_rg.name
-  service_plan_id     = azurerm_service_plan.app_plan.id
+  name                = var.app_service_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  service_plan_id     = azurerm_app_service_plan.app_plan.id
 
   site_config {
-    always_on = false
+    dotnet_framework_version = "v4.0"
   }
 
-  app_settings = {
-    "WEBSITE_RUN_FROM_PACKAGE" = "1"
-  }
+  https_only = true
 }
+
