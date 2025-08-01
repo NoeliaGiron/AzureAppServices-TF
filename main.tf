@@ -15,8 +15,14 @@ terraform {
 
 provider "azurerm" {
   features {}
-  # Jenkins ya exporta las variables de entorno necesarias
+
+  subscription_id = var.subscription_id
 }
+variable "subscription_id" {
+  type = string
+  description = "Subscription ID de Azure"
+}
+
 
 resource "random_pet" "name" {
   length    = 2
