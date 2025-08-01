@@ -15,6 +15,8 @@ terraform {
 
 provider "azurerm" {
   features {}
+  # No es necesario definir subscription_id, tenant_id, client_id ni client_secret aquí
+  # Jenkins exporta esas variables de entorno y el provider las detecta automáticamente.
 }
 
 resource "random_pet" "name" {
@@ -32,15 +34,15 @@ resource "azurerm_service_plan" "app_plan" {
   location            = azurerm_resource_group.app_rg.location
   resource_group_name = azurerm_resource_group.app_rg.name
 
-  sku_name = "F1"
-  os_type  = "Windows"
+  sku_name = "F1"      # Plan Free, puedes cambiarlo si deseas otro tipo
+  os_type  = "Windows" # Sistema operativo Windows
 }
 
 resource "azurerm_windows_web_app" "web_app" {
   name                = "webapp-${random_pet.name.id}"
   location            = azurerm_resource_group.app_rg.location
   resource_group_name = azurerm_resource_group.app_rg.name
-  app_service_plan_id = azurerm_service_plan.app_plan.id
+  service_plan_id     = azurerm_service_plan.app_plan.id
 
   site_config {
     always_on = false
