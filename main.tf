@@ -2,38 +2,38 @@ provider "azurerm" {
   features {}
 }
 
-resource "random_id" "suffix" {
-  byte_length = 4
-}
-
-resource "azurerm_resource_group" "app_rg" {
-  name     = "rg-tf-appservice"
+resource "azurerm_resource_group" "rg" {
+  name     = "example-resource-group"
   location = "East US"
 }
 
 resource "azurerm_service_plan" "app_plan" {
-  name                = "appservice-plan"
-  location            = azurerm_resource_group.app_rg.location
-  resource_group_name = azurerm_resource_group.app_rg.name
+  name                = "example-app-service-plan"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  os_type             = "Linux"
 
-  sku_name = "F1"
-  sku_tier = "Free"
-
-  os_type = "Linux"
+  sku {
+    tier = "Free"
+    size = "F1"
+  }
 }
 
 resource "azurerm_linux_web_app" "web_app" {
-  name                = "neoliaapp${random_id.suffix.hex}"
-  location            = azurerm_resource_group.app_rg.location
-  resource_group_name = azurerm_resource_group.app_rg.name
+  name                = "example-linux-web-app-${random_integer.suffix.result}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
   service_plan_id     = azurerm_service_plan.app_plan.id
 
   site_config {
-    linux_fx_version = "NODE|18-lts"
-    always_on       = false
+    application_stack {
+      docker_image     = "nginx"
+      docker_image_tag = "latest"
+    }
   }
+}
 
-  app_settings = {
-    "WEBSITE_RUN_FROM_PACKAGE" = "1"
-  }
+resource "random_integer" "suffix" {
+  min = 10000
+  max = 99999
 }
