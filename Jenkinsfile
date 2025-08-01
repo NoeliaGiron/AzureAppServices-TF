@@ -49,7 +49,8 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                sh 'terraform init'
+                // Aquí se fuerza la actualización de proveedores con -upgrade
+                sh 'terraform init -upgrade'
             }
         }
 
