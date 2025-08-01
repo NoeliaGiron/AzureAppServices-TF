@@ -6,19 +6,10 @@ pipeline {
     }
 
     stages {
-        stage('Debug Credentials') {
+        stage('Test Credential') {
             steps {
-                script {
-                    def creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
-                        com.cloudbees.plugins.credentials.common.StandardCredentials.class,
-                        Jenkins.instance,
-                        null,
-                        null
-                    )
-                    echo "Credenciales visibles:"
-                    creds.each { c ->
-                        echo "ID: ${c.id} - Tipo: ${c.class.simpleName}"
-                    }
+                withCredentials([string(credentialsId: 'azure-service-principal', variable: 'AZURE_CREDENTIALS_JSON')]) {
+                    echo "Credencial azure-service-principal encontrada y disponible."
                 }
             }
         }
