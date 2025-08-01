@@ -33,7 +33,7 @@ resource "azurerm_resource_group" "app_rg" {
   location = "East US"
 }
 
-resource "azurerm_app_service_plan" "app_plan" {
+resource "azurerm_service_plan" "app_plan" {
   name                = "appservice-plan"
   location            = azurerm_resource_group.app_rg.location
   resource_group_name = azurerm_resource_group.app_rg.name
