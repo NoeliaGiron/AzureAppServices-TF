@@ -6,9 +6,27 @@ pipeline {
     }
 
     stages {
+        stage('Debug Credentials') {
+            steps {
+                script {
+                    def creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+                        com.cloudbees.plugins.credentials.common.StandardCredentials.class,
+                        Jenkins.instance,
+                        null,
+                        null
+                    )
+                    echo "Credenciales visibles:"
+                    creds.each { c ->
+                        echo "ID: ${c.id} - Tipo: ${c.class.simpleName}"
+                    }
+                }
+            }
+        }
+
         stage('Clonar Repositorio') {
             steps {
-                git branch: 'main', url: 'https://github.com/jaimepsayago/azure-appservice-tf'            }
+                git branch: 'main', url: 'https://github.com/NoeliaGiron/AzureAppServices-TF.git'
+            }
         }
 
         stage('Autenticación Azure') {
