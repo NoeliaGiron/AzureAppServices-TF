@@ -1,10 +1,9 @@
 provider "azurerm" {
   features {}
+}
 
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  tenant_id       = var.tenant_id
-  subscription_id = var.subscription_id
+resource "random_id" "suffix" {
+  byte_length = 4
 }
 
 resource "azurerm_resource_group" "app_rg" {
@@ -12,7 +11,7 @@ resource "azurerm_resource_group" "app_rg" {
   location = "East US"
 }
 
-resource "azurerm_app_service_plan" "app_plan" {
+resource "azurerm_service_plan" "app_plan" {
   name                = "appservice-plan"
   location            = azurerm_resource_group.app_rg.location
   resource_group_name = azurerm_resource_group.app_rg.name
@@ -21,16 +20,19 @@ resource "azurerm_app_service_plan" "app_plan" {
     tier = "Free"
     size = "F1"
   }
+
+  os_type = "Linux"
 }
 
-resource "azurerm_app_service" "web_app" {
-  name                = "neoliaapp"
+resource "azurerm_linux_web_app" "web_app" {
+  name                = "neoliaapp${random_id.suffix.hex}"
   location            = azurerm_resource_group.app_rg.location
   resource_group_name = azurerm_resource_group.app_rg.name
-  app_service_plan_id = azurerm_app_service_plan.app_plan.id
+  service_plan_id     = azurerm_service_plan.app_plan.id
 
   site_config {
-    always_on = false
+    linux_fx_version = "NODE|18-lts" # o el runtime que uses
+    always_on       = false
   }
 
   app_settings = {
