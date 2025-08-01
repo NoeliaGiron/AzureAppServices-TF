@@ -16,10 +16,8 @@ resource "azurerm_service_plan" "app_plan" {
   location            = azurerm_resource_group.app_rg.location
   resource_group_name = azurerm_resource_group.app_rg.name
 
-  sku {
-    tier = "Free"
-    size = "F1"
-  }
+  sku_name = "F1"
+  sku_tier = "Free"
 
   os_type = "Linux"
 }
@@ -31,11 +29,15 @@ resource "azurerm_linux_web_app" "web_app" {
   service_plan_id     = azurerm_service_plan.app_plan.id
 
   site_config {
-    linux_fx_version = "NODE|18-lts" # o el runtime que uses
+    linux_fx_version = "NODE|18-lts"
     always_on       = false
   }
 
   app_settings = {
     "WEBSITE_RUN_FROM_PACKAGE" = "1"
   }
+}
+
+output "app_service_url" {
+  value = azurerm_linux_web_app.web_app.default_site_hostname
 }
