@@ -1,50 +1,30 @@
 terraform {
+  required_version = ">= 1.3.0"
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0"
+      version = "~> 4.38.1"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.0"
+      version = "~> 3.7.2"
     }
   }
 }
 
 provider "azurerm" {
-  features = {}
-  version  = "~> 4.38.1"
+  features {}
 }
 
+# Generar nombre aleatorio para el resource group
+resource "random_pet" "rg_name" {
+  length    = 2
+  separator = "-"
+}
 
+# Crear el Resource Group en Azure
 resource "azurerm_resource_group" "rg" {
-  name     = "example-resource-group"
+  name     = random_pet.rg_name.id
   location = "East US"
-}
-
-resource "azurerm_service_plan" "app_plan" {
-  name                = "example-app-service-plan"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  os_type             = "Linux"
-  sku_name            = "F1"  # 👈 Reemplaza el bloque sku {} por esta línea
-}
-
-resource "random_integer" "suffix" {
-  min = 10000
-  max = 99999
-}
-
-resource "azurerm_linux_web_app" "web_app" {
-  name                = "example-linux-web-app-${random_integer.suffix.result}"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  service_plan_id     = azurerm_service_plan.app_plan.id
-
-  site_config {
-    application_stack {
-      docker_image     = "nginx"
-      docker_image_tag = "latest"
-    }
-  }
 }
